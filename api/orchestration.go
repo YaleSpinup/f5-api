@@ -15,14 +15,10 @@ type ltmOrchestrator struct {
 	UploadPath string
 }
 
-func (o *ltmOrchestrator) modifyClientSSLProfile(ctx context.Context, name string, data *ModifyClientSSLProfileRequest) error {
+func (o *ltmOrchestrator) modifyClientSSLProfile(ctx context.Context, data *ModifyClientSSLProfileRequest) error {
 	var err error
 	var ecert []byte
 	var ekey []byte
-
-	if name != "" {
-		fmt.Println("")
-	}
 
 	// decode certificate and key file
 	ecert, err = base64.StdEncoding.DecodeString(data.CertificateFile)
@@ -67,14 +63,10 @@ func (o *ltmOrchestrator) modifyClientSSLProfile(ctx context.Context, name strin
 	return nil
 }
 
-func (o *ltmOrchestrator) createClientSSLProfile(ctx context.Context, name string, data *ModifyClientSSLProfileRequest) error {
+func (o *ltmOrchestrator) createClientSSLProfile(ctx context.Context, data *ModifyClientSSLProfileRequest) error {
 	var err error
 	var ecert []byte
 	var ekey []byte
-
-	if name != "" {
-		fmt.Println("")
-	}
 
 	// decode certificate and key file
 	ecert, err = base64.StdEncoding.DecodeString(data.CertificateFile)
@@ -95,6 +87,7 @@ func (o *ltmOrchestrator) createClientSSLProfile(ctx context.Context, name strin
 	}
 	err = o.client.UploadFile(string(ekey), fmt.Sprintf("%s.key", data.ClientSSLProfileName))
 	if err != nil {
+
 		return err
 	}
 

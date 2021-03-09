@@ -34,7 +34,7 @@ import (
 
 var (
 	// Version is the main version number
-	Version = "0.0.0"
+	Version = "0.0.1"
 
 	// Buildstamp is the timestamp the binary was built, it should be set at buildtime with ldflags
 	Buildstamp = "No BuildStamp Provided"

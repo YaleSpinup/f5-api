@@ -82,7 +82,7 @@ func (s *server) ModifyClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 	host := vars["host"]
 	name := vars["name"]
 
-	log.Infof("updating client ssl profile")
+	log.Infof("update client-ssl profile %s on host %s", name, host)
 
 	raw, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -107,16 +107,24 @@ func (s *server) ModifyClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 		client: ltmService,
 	}
 
-	if err := orch.modifyClientSSLProfile(r.Context(), name, &data); err != nil {
+	var out string
+	if err := orch.modifyClientSSLProfile(r.Context(), &data); err != nil {
 		handleError(w, err)
+		out = fmt.Sprintf("error modifying client-ssl profile %s on host %s", name, host)
+		return
+	} else {
+		out = fmt.Sprintf("modified client-ssl profile %s on host %s", name, host)
+	}
+
+	j, err := json.Marshal(out)
+	if err != nil {
+		handleError(w, apierror.New(apierror.ErrBadRequest, "failed to marshal json", err))
 		return
 	}
 
-	out := fmt.Sprintf("ClientSSLProfile %s updated for host: %s\n", name, host)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(out))
+	w.Write(j)
 }
 
 // CreateClientSSLProfile creates SSL Client Profile
@@ -126,11 +134,7 @@ func (s *server) CreateClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 	host := vars["host"]
 	name := vars["name"]
 
-	log.Infof("creating client ssl profile")
-
-	// 	data := MyClientSSLProfile{}
-
-	// 	err = json.Unmarshal([]byte(raw), &data)
+	log.Infof("create client-ssl profile %s on host %s", name, host)
 
 	raw, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -155,12 +159,13 @@ func (s *server) CreateClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 		client: ltmService,
 	}
 
-	if err := orch.createClientSSLProfile(r.Context(), name, &data); err != nil {
+	var out string
+	if err := orch.createClientSSLProfile(r.Context(), &data); err != nil {
 		handleError(w, err)
 		return
+	} else {
+		out = fmt.Sprintf("created client-ssl profile %s on host %s", name, host)
 	}
-
-	out := fmt.Sprintf("SSLProfile %s created\n", name)
 
 	j, err := json.Marshal(out)
 	if err != nil {
