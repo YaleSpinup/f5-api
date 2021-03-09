@@ -27,7 +27,7 @@ import (
 // Config is representation of the configuration data
 type Config struct {
 	ListenAddress string
-	Account       Account
+	Accounts      map[string]Account
 	Token         string
 	LogLevel      string
 	Version       Version
@@ -36,19 +36,17 @@ type Config struct {
 
 // Account is the configuration for an individual account
 type Account struct {
-	Endpoint	string
-	ExternalID	string
-	Akid		string
-	Secret		string
-	Region		string
-	Role		string
+	LTMHost    string
+	UploadPath string
+	Username   string
+	Password   string
 }
 
 // Version carries around the API version information
 type Version struct {
-	Version           string
-	BuildStamp        string
-	GitHash           string
+	Version    string
+	BuildStamp string
+	GitHash    string
 }
 
 // ReadConfig decodes the configuration from an io Reader

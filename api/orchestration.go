@@ -20,6 +20,10 @@ func (o *ltmOrchestrator) modifyClientSSLProfile(ctx context.Context, name strin
 	var ecert []byte
 	var ekey []byte
 
+	if name != "" {
+		fmt.Println("")
+	}
+
 	// decode certificate and key file
 	ecert, err = base64.StdEncoding.DecodeString(data.CertificateFile)
 	if err != nil {
@@ -33,29 +37,29 @@ func (o *ltmOrchestrator) modifyClientSSLProfile(ctx context.Context, name strin
 	// TODO Check cert/key match
 
 	// upload certificate and key file
-	err = o.client.UploadFile(string(ecert), fmt.Sprintf("%s.crt", name))
+	err = o.client.UploadFile(string(ecert), fmt.Sprintf("%s.crt", data.ClientSSLProfileName))
 	if err != nil {
 		return err
 	}
-	err = o.client.UploadFile(string(ekey), fmt.Sprintf("%s.key", name))
+	err = o.client.UploadFile(string(ekey), fmt.Sprintf("%s.key", data.ClientSSLProfileName))
 	if err != nil {
 		return err
 	}
 
 	thisYear := fmt.Sprintf("%s", time.Now().Format("2006"))
 
-	err = o.client.ImportCertificate(name, thisYear)
+	err = o.client.ImportCertificate(data.ClientSSLProfileName, thisYear)
 	if err != nil {
 		return err
 	}
 
-	err = o.client.ImportKey(name, thisYear)
+	err = o.client.ImportKey(data.ClientSSLProfileName, thisYear)
 	if err != nil {
 		return err
 	}
 
 	// update clientssl profile, i.e., realcert.lab.example.org-2021.(crt|key)
-	err = o.client.ModifyClientSSLProfile(name, data.ClientSSLProfileName, data.DefaultsFrom, data.Chain, data.CipherGroup, data.Ciphers, thisYear)
+	err = o.client.ModifyClientSSLProfile(data.ClientSSLProfileName, data.DefaultsFrom, data.Chain, data.CipherGroup, data.Ciphers, thisYear)
 	if err != nil {
 		return err
 	}
@@ -68,6 +72,10 @@ func (o *ltmOrchestrator) createClientSSLProfile(ctx context.Context, name strin
 	var ecert []byte
 	var ekey []byte
 
+	if name != "" {
+		fmt.Println("")
+	}
+
 	// decode certificate and key file
 	ecert, err = base64.StdEncoding.DecodeString(data.CertificateFile)
 	if err != nil {
@@ -81,29 +89,29 @@ func (o *ltmOrchestrator) createClientSSLProfile(ctx context.Context, name strin
 	// TODO Check cert/key match
 
 	// upload certificate and key file
-	err = o.client.UploadFile(string(ecert), fmt.Sprintf("%s.crt", name))
+	err = o.client.UploadFile(string(ecert), fmt.Sprintf("%s.crt", data.ClientSSLProfileName))
 	if err != nil {
 		return err
 	}
-	err = o.client.UploadFile(string(ekey), fmt.Sprintf("%s.key", name))
+	err = o.client.UploadFile(string(ekey), fmt.Sprintf("%s.key", data.ClientSSLProfileName))
 	if err != nil {
 		return err
 	}
 
 	thisYear := fmt.Sprintf("%s", time.Now().Format("2006"))
 
-	err = o.client.ImportCertificate(name, thisYear)
+	err = o.client.ImportCertificate(data.ClientSSLProfileName, thisYear)
 	if err != nil {
 		return err
 	}
 
-	err = o.client.ImportKey(name, thisYear)
+	err = o.client.ImportKey(data.ClientSSLProfileName, thisYear)
 	if err != nil {
 		return err
 	}
 
 	// create clientssl profile, i.e., realcert.lab.example.org-2021.(key|crt}
-	err = o.client.CreateClientSSLProfile(name, data.ClientSSLProfileName, data.DefaultsFrom, data.Chain, data.CipherGroup, data.Ciphers, thisYear)
+	err = o.client.CreateClientSSLProfile(data.ClientSSLProfileName, data.DefaultsFrom, data.Chain, data.CipherGroup, data.Ciphers, thisYear)
 	if err != nil {
 		return err
 	}

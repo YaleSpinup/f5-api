@@ -26,8 +26,8 @@ import (
 	"net/http"
 	"os"
 
-	"f5-api/api"
-	"f5-api/common"
+	"github.com/YaleSpinup/f5-api/api"
+	"github.com/YaleSpinup/f5-api/common"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -64,9 +64,9 @@ func main() {
 	}
 
 	config.Version = common.Version{
-		Version:           Version,
-		BuildStamp:        Buildstamp,
-		GitHash:           Githash,
+		Version:    Version,
+		BuildStamp: Buildstamp,
+		GitHash:    Githash,
 	}
 
 	// Set the loglevel, info if it's unset
@@ -85,7 +85,16 @@ func main() {
 		log.Debug("Starting profiler on 127.0.0.1:6080")
 		go http.ListenAndServe("127.0.0.1:6080", nil)
 	}
-	log.Debugf("loaded configuration: %+v", config)
+
+	// show the configuration in Debug but not password
+	log.Debugf(
+		"Reading configuration, ListenAddress: %s, Token: *******, LogLevel: %s, Version: %s, Org: %s",
+		config.ListenAddress, config.LogLevel, config.Version, config.Org)
+	for k, v := range config.Accounts {
+		log.Debugf(
+			"LTMHosts: %s, Username: %s, Password: *********, UploadPath: %s",
+			k, v.Username, v.UploadPath)
+	}
 
 	if err := api.NewServer(config); err != nil {
 		log.Fatal(err)

@@ -12,8 +12,8 @@ type LTMIface interface {
 	UploadFile(string, string) error
 	ImportKey(string, string) error
 	ImportCertificate(string, string) error
-	ModifyClientSSLProfile(string, string, string, string, string, string, string) error
-	CreateClientSSLProfile(string, string, string, string, string, string, string) error
+	ModifyClientSSLProfile(string, string, string, string, string, string) error
+	CreateClientSSLProfile(string, string, string, string, string, string) error
 }
 
 // LTM is struct containing login info

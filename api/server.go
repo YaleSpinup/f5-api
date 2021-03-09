@@ -2,28 +2,44 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/YaleSpinup/f5-api/common"
+	"github.com/YaleSpinup/f5-api/iam"
 	"github.com/YaleSpinup/f5-api/ltm"
+	"github.com/YaleSpinup/f5-api/session"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	// Org will carry throughout the api and get tagged on resources
-	Org string
-)
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+// apiVersion is the API version
+type apiVersion struct {
+	// The version of the API
+	Version string `json:"version"`
+	// The git hash of the API
+	GitHash string `json:"githash"`
+	// The build timestamp of the API
+	BuildStamp string `json:"buildstamp"`
+}
 
 type server struct {
 	router      *mux.Router
-	version     common.Version
+	version     *apiVersion
 	context     context.Context
+	session     session.Session
+	orgPolicy   string
+	org         string
 	LTMServices map[string]ltm.LTMIface
 }
 
@@ -33,17 +49,27 @@ func NewServer(config common.Config) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	if config.Org == "" {
+		return errors.New("'org' cannot be empty in the configuration")
+	}
+
 	s := server{
 		router:      mux.NewRouter(),
-		version:     config.Version,
 		context:     ctx,
 		LTMServices: make(map[string]ltm.LTMIface),
 	}
 
-	if config.Org == "" {
-		return errors.New("'org' cannot be empty in the configuration")
+	s.version = &apiVersion{
+		Version:    config.Version.Version,
+		GitHash:    config.Version.GitHash,
+		BuildStamp: config.Version.BuildStamp,
 	}
-	Org = config.Org
+
+	orgPolicy, err := orgTagAccessPolicy(config.Org)
+	if err != nil {
+		return err
+	}
+	s.orgPolicy = orgPolicy
 
 	// Create shared F5 BigIP sessions
 	for name, c := range config.Accounts {
@@ -90,4 +116,92 @@ func (w LogWriter) Write(p []byte) (n int, err error) {
 		log.Errorf("Write failed: %v", err)
 	}
 	return
+}
+
+type rollbackFunc func(ctx context.Context) error
+
+// rollBack executes functions from a stack of rollback functions
+func rollBack(t *[]rollbackFunc) {
+	if t == nil {
+		return
+	}
+
+	timeout, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	defer cancel()
+
+	done := make(chan string, 1)
+	go func() {
+		tasks := *t
+		log.Errorf("execting rollback of %d tasks", len(tasks))
+		for i := len(tasks) - 1; i >= 0; i-- {
+			f := tasks[i]
+			if funcerr := f(timeout); funcerr != nil {
+				log.Errorf("rollback task error: %s, continuing rollback", funcerr)
+			}
+			log.Infof("executed rollback task %d of %d", len(tasks)-i, len(tasks))
+		}
+		done <- "success"
+	}()
+
+	// wait for a done context
+	select {
+	case <-timeout.Done():
+		log.Error("timeout waiting for successful rollback")
+	case <-done:
+		log.Info("successfully rolled back")
+	}
+}
+
+type stop struct {
+	error
+}
+
+// retry is stolen from https://upgear.io/blog/simple-golang-retry-function/
+func retry(attempts int, sleep time.Duration, f func() error) error {
+	if err := f(); err != nil {
+		if s, ok := err.(stop); ok {
+			// Return the original error for later checking
+			return s.error
+		}
+
+		if attempts--; attempts > 0 {
+			// Add some randomness to prevent creating a Thundering Herd
+			jitter := time.Duration(rand.Int63n(int64(sleep)))
+			sleep = sleep + jitter/2
+
+			time.Sleep(sleep)
+			return retry(attempts, 2*sleep, f)
+		}
+		return err
+	}
+
+	return nil
+}
+
+// orgTagAccessPolicy generates the org tag conditional policy to be passed inline when assuming a role
+func orgTagAccessPolicy(org string) (string, error) {
+	log.Debugf("generating org policy document")
+
+	policy := iam.PolicyDocument{
+		Version: "2012-10-17",
+		Statement: []iam.StatementEntry{
+			{
+				Effect:   "Allow",
+				Action:   []string{"*"},
+				Resource: "*",
+				Condition: iam.Condition{
+					"StringEquals": iam.ConditionStatement{
+						"aws:ResourceTag/spinup:org": org,
+					},
+				},
+			},
+		},
+	}
+
+	j, err := json.Marshal(policy)
+	if err != nil {
+		return "", err
+	}
+
+	return string(j), nil
 }

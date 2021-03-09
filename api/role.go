@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"f5-api/session"
-	stsSvc "f5-api/sts"
+	"github.com/YaleSpinup/f5-api/session"
+	stsSvc "github.com/YaleSpinup/f5-api/sts"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/google/uuid"

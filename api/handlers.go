@@ -30,7 +30,7 @@ func (s *server) VersionHandler(w http.ResponseWriter, r *http.Request) {
 		GitHash    string `json:"githash"`
 		BuildStamp string `json:"buildstamp"`
 	}{
-		Version:    fmt.Sprintf("%s%s", s.version.Version, s.version.VersionPrerelease),
+		Version:    fmt.Sprintf("%s%s", s.version.Version),
 		GitHash:    s.version.GitHash,
 		BuildStamp: s.version.BuildStamp,
 	})
