@@ -110,7 +110,6 @@ func (s *server) ModifyClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 	var out string
 	if err := orch.modifyClientSSLProfile(r.Context(), &data); err != nil {
 		handleError(w, err)
-		out = fmt.Sprintf("error modifying client-ssl profile %s on host %s", name, host)
 		return
 	} else {
 		out = fmt.Sprintf("modified client-ssl profile %s on host %s", name, host)
