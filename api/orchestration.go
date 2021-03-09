@@ -87,7 +87,6 @@ func (o *ltmOrchestrator) createClientSSLProfile(ctx context.Context, data *Modi
 	}
 	err = o.client.UploadFile(string(ekey), fmt.Sprintf("%s.key", data.ClientSSLProfileName))
 	if err != nil {
-
 		return err
 	}
 
