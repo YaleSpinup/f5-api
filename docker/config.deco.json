@@ -1,15 +1,41 @@
 { 
   "listenAddress": ":8080",
   "accounts": {
-    "spinup": {
-      "region": "us-east-1",
-      "akid": "{{ .spinup_akid }}",
-      "secret": "{{ .spinup_secret }}"
+    "{{ .ltmhost01 }}": {
+      "ltmhost": "{{ .ltmhost01 }}",
+      "username": "{{ .username01 }}",
+      "password": "{{ .password01 }}",
+      "uploadpath": "{{ .uploadpath01 }}"
     },
-    "spinupsec": {
-      "region": "us-east-1",
-      "akid": "{{ .spinupsec_akid }}",
-      "secret": "{{ .spinupsec_secret }}"
+    "{{ .ltmhost02 }}": {
+      "ltmhost": "{{ .ltmhost02 }}",
+      "username": "{{ .username02 }}",
+      "password": "{{ .password02 }}",
+      "uploadpath": "{{ .uploadpath02 }}"
+    },
+    "{{ .ltmhost03 }}": {
+      "ltmhost": "{{ .ltmhost03 }}",
+      "username": "{{ .username03 }}",
+      "password": "{{ .password03 }}",
+      "uploadpath": "{{ .uploadpath03 }}"
+    },
+    "{{ .ltmhost04 }}": {
+      "ltmhost": "{{ .ltmhost04 }}",
+      "username": "{{ .username04 }}",
+      "password": "{{ .password04 }}",
+      "uploadpath": "{{ .uploadpath04 }}"
+    },
+    "{{ .ltmhost05 }}": {
+      "ltmhost": "{{ .ltmhost05 }}",
+      "username": "{{ .username05 }}",
+      "password": "{{ .password05 }}",
+      "uploadpath": "{{ .uploadpath05 }}"
+    },
+    "{{ .ltmhost06 }}": {
+      "ltmhost": "{{ .ltmhost06 }}",
+      "username": "{{ .username06 }}",
+      "password": "{{ .password06 }}",
+      "uploadpath": "{{ .uploadpath06 }}"
     }
   },
   "token": "{{ .api_token }}",
