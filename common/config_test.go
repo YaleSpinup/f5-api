@@ -25,15 +25,16 @@ import (
 var testConfig = []byte(
 	`{
 		"listenAddress": ":8000",
-		"account": {
-			"region": "us-east-1",
-			"akid": "key1",
-			"secret": "secret1",
-			"role": "uber-role",
-			"externalId": "foobar"
+		"accounts": {
+			"www.example.org": {
+				"ltmhost": "www.example.org",
+				"username": "user1",
+				"password": "1badpass",
+				"uploadpath": "/foobar"
+			}
 		},
 		"token": "SEKRET",
-		"logLevel": "info",
+		"logLevel": "infos",
 		"org": "test"
 	}`)
 
@@ -42,16 +43,17 @@ var brokenConfig = []byte(`{ "foobar": { "baz": "biz" }`)
 func TestReadConfig(t *testing.T) {
 	expectedConfig := Config{
 		ListenAddress: ":8000",
-		Account: Account{
-			Region:     "us-east-1",
-			Akid:       "key1",
-			Secret:     "secret1",
-			Role:       "uber-role",
-			ExternalID: "foobar",
+		Token:         "SEKRET",
+		LogLevel:      "infos",
+		Org:           "test",
+		Accounts: map[string]Account{
+			"www.example.org": Account{
+				LTMHost:    "www.example.org",
+				Username:   "user1",
+				Password:   "1badpass",
+				UploadPath: "/foobar",
+			},
 		},
-		Token:    "SEKRET",
-		LogLevel: "info",
-		Org:      "test",
 	}
 
 	actualConfig, err := ReadConfig(bytes.NewReader(testConfig))

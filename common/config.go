@@ -34,6 +34,13 @@ type Config struct {
 	Org           string
 }
 
+// Version carries around the API version information
+type Version struct {
+	Version    string
+	BuildStamp string
+	GitHash    string
+}
+
 // Account is the configuration for an individual account
 type Account struct {
 	LTMHost    string
@@ -42,12 +49,14 @@ type Account struct {
 	Password   string
 }
 
+/*
 // Version carries around the API version information
 type Version struct {
 	Version    string
 	BuildStamp string
 	GitHash    string
 }
+*/
 
 // ReadConfig decodes the configuration from an io Reader
 func ReadConfig(r io.Reader) (Config, error) {
