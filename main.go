@@ -88,12 +88,12 @@ func main() {
 
 	// show the configuration in Debug but not password
 	log.Debugf(
-		"Reading configuration, ListenAddress: %s, Token: *******, LogLevel: %s, Version: %s, Org: %s",
-		config.ListenAddress, config.LogLevel, config.Version, config.Org)
+		"Reading configuration, ListenAddress: %s, Token: %s********, LogLevel: %s, Version: %s, Org: %s",
+		config.ListenAddress, config.Token[0:2], config.LogLevel, config.Version, config.Org)
 	for k, v := range config.Accounts {
 		log.Debugf(
-			"LTMHosts: %s, Username: %s, Password: *********, UploadPath: %s",
-			k, v.Username, v.UploadPath)
+			"LTMHosts: %s, Username: %s, Password: %s********, UploadPath: %s",
+			k, v.Username, v.Password[0:2], v.UploadPath)
 	}
 
 	if err := api.NewServer(config); err != nil {
