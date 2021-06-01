@@ -107,29 +107,21 @@ func (s *server) ModifyClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 		client: ltmService,
 	}
 
-	var out string
 	if err := orch.modifyClientSSLProfile(r.Context(), &data); err != nil {
 		handleError(w, err)
 		return
-	} else {
-		out = fmt.Sprintf("modified client-ssl profile %s on host %s", name, host)
 	}
 
-	j, err := json.Marshal(out)
-	if err != nil {
-		handleError(w, apierror.New(apierror.ErrBadRequest, "failed to marshal json", err))
-		return
-	}
+	out := []byte(fmt.Sprintf("modified client-ssl profile %s on host %s", name, host))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(j)
+	w.Write(out)
 }
 
 // CreateClientSSLProfile creates SSL Client Profile
 func (s *server) CreateClientSSLProfile(w http.ResponseWriter, r *http.Request) {
-	w = LogWriter{w}
-	vars := mux.Vars(r)
+	w = LogWriter{w} vars := mux.Vars(r)
 	host := vars["host"]
 	name := vars["name"]
 
@@ -158,21 +150,14 @@ func (s *server) CreateClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 		client: ltmService,
 	}
 
-	var out string
 	if err := orch.createClientSSLProfile(r.Context(), &data); err != nil {
 		handleError(w, err)
 		return
-	} else {
-		out = fmt.Sprintf("created client-ssl profile %s on host %s", name, host)
 	}
 
-	j, err := json.Marshal(out)
-	if err != nil {
-		handleError(w, apierror.New(apierror.ErrBadRequest, "failed to marshal json", err))
-		return
-	}
+	out := []byte(fmt.Sprintf("created client-ssl profile %s on host %s", name, host))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(j)
+	w.Write(out)
 }

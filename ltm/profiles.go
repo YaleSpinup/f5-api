@@ -12,9 +12,8 @@ import (
 func (l *LTM) ListClientSSLProfiles() ([]string, error) {
 	out, err := l.Service.ClientSSLProfiles()
 	if err != nil {
-		// GOOGLEY FIXME
-		//return nil, ErrCode("failed to list client ssl profiles", err)
-		return nil, err
+		msg := fmt.Sprintf("failed to list client ssl profiles")
+		return nil, apierror.New(apierror.ErrInternalError, msg, err)
 	}
 
 	profiles := make([]string, 0, len(out.ClientSSLProfiles))
@@ -33,9 +32,8 @@ func (l *LTM) GetClientSSLProfile(name string) (*bigip.ClientSSLProfile, error) 
 
 	out, err := l.Service.GetClientSSLProfile(name)
 	if err != nil {
-		// GOOGLEY FIXME
-		//return nil, ErrCode("failed to get ssl profile", err)
-		return nil, err
+		msg := fmt.Sprintf("failed to get ssl profile %s on %s", name, l.Host)
+		return nil, apierror.New(apierror.ErrInternalError, msg, err)
 	}
 
 	return out, nil
@@ -47,15 +45,12 @@ func (l *LTM) UploadFile(file, name string) error {
 		return apierror.New(apierror.ErrBadRequest, "invalid input", nil)
 	}
 
-	_, err := l.Service.UploadBytes([]byte(file), name)
-	if err != nil {
-		// GOOGLEY FIXME
-		//return ErrCode("failed to upload file on ", err)
-		msg := fmt.Sprintf("upload file failed %s on %s", name, l.Host)
-		return apierror.New(apierror.ErrBadRequest, msg, err)
-	} else {
-		log.Infof("uploaded file %s on host %s", name, l.Host)
+	if _, err := l.Service.UploadBytes([]byte(file), name); err != nil {
+		msg := fmt.Sprintf("failed to upload file %s on %s", name, l.Host)
+		return apierror.New(apierror.ErrInternalError, msg, err)
 	}
+
+	log.Infof("uploaded file %s on host %s", name, l.Host)
 
 	return nil
 }
@@ -126,13 +121,13 @@ func (l *LTM) ModifyClientSSLProfile(ClientSSLProfileName, DefaultsFrom, Chain, 
 		Ciphers:      Ciphers,
 	}
 
-	err := l.Service.ModifyClientSSLProfile(ClientSSLProfileName, modifycert)
-	if err != nil {
-		msg := fmt.Sprintf("error modifying client-ssl profile %s on %s", ClientSSLProfileName, l.Host)
-		return apierror.New(apierror.ErrBadRequest, msg, err)
-	} else {
-		log.Infof("modified client-ssl profile %s on %s\n", ClientSSLProfileName, l.Host)
+	if err := l.Service.ModifyClientSSLProfile(ClientSSLProfileName, modifycert); err != nil {
+		msg := fmt.Sprintf("failed to modify client-ssl profile %s on %s", ClientSSLProfileName, l.Host)
+		return apierror.New(apierror.ErrInternalError, msg, err)
 	}
+
+	log.Infof("modified client-ssl profile %s on %s\n", ClientSSLProfileName, l.Host)
+
 	return nil
 
 }
@@ -153,13 +148,13 @@ func (l *LTM) CreateClientSSLProfile(ClientSSLProfileName, DefaultsFrom, Chain, 
 		Ciphers:      Ciphers,
 	}
 
-	err := l.Service.AddClientSSLProfile(addcert)
-	if err != nil {
+	if err := l.Service.AddClientSSLProfile(addcert); err != nil {
 		msg := fmt.Sprintf("error creating client-ssl profile %s on %s", ClientSSLProfileName, l.Host)
 		return apierror.New(apierror.ErrBadRequest, msg, err)
-	} else {
-		log.Infof("created client-ssl profile %s on host %s\n", ClientSSLProfileName, l.Host)
 	}
+
+	log.Infof("created client-ssl profile %s on host %s\n", ClientSSLProfileName, l.Host)
+
 	return nil
 
 }
