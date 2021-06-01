@@ -121,7 +121,8 @@ func (s *server) ModifyClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 
 // CreateClientSSLProfile creates SSL Client Profile
 func (s *server) CreateClientSSLProfile(w http.ResponseWriter, r *http.Request) {
-	w = LogWriter{w} vars := mux.Vars(r)
+	w = LogWriter{w}
+	vars := mux.Vars(r)
 	host := vars["host"]
 	name := vars["name"]
 
