@@ -25,7 +25,7 @@ type LTM struct {
 
 // NewSession creates a new LTM session
 func NewSession(host, user, pass, uploadPath string) *LTM {
-	log.Infof("creating a new LTM session with host %s and username %s", host, user)
+	log.Infof("creating a new LTM session with host %s with username %s", host, user)
 
 	return &LTM{
 		Service:    bigip.NewSession(host, user, pass, nil),

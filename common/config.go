@@ -34,19 +34,19 @@ type Config struct {
 	Org           string
 }
 
+// Version carries around the API version information
+type Version struct {
+	Version    string
+	BuildStamp string
+	GitHash    string
+}
+
 // Account is the configuration for an individual account
 type Account struct {
 	LTMHost    string
 	UploadPath string
 	Username   string
 	Password   string
-}
-
-// Version carries around the API version information
-type Version struct {
-	Version    string
-	BuildStamp string
-	GitHash    string
 }
 
 // ReadConfig decodes the configuration from an io Reader

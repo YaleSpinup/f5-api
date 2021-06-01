@@ -82,7 +82,7 @@ func (s *server) ModifyClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 	host := vars["host"]
 	name := vars["name"]
 
-	log.Infof("updating client ssl profile")
+	log.Infof("update client-ssl profile %s on host %s", name, host)
 
 	raw, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -107,30 +107,25 @@ func (s *server) ModifyClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 		client: ltmService,
 	}
 
-	if err := orch.modifyClientSSLProfile(r.Context(), name, &data); err != nil {
+	if err := orch.modifyClientSSLProfile(r.Context(), &data); err != nil {
 		handleError(w, err)
 		return
 	}
 
-	out := fmt.Sprintf("ClientSSLProfile %s updated for host: %s\n", name, host)
+	out := []byte(fmt.Sprintf("modified client-ssl profile %s on host %s", name, host))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(out))
+	w.Write(out)
 }
 
 // CreateClientSSLProfile creates SSL Client Profile
 func (s *server) CreateClientSSLProfile(w http.ResponseWriter, r *http.Request) {
-	w = LogWriter{w}
-	vars := mux.Vars(r)
+	w = LogWriter{w} vars := mux.Vars(r)
 	host := vars["host"]
 	name := vars["name"]
 
-	log.Infof("creating client ssl profile")
-
-	// 	data := MyClientSSLProfile{}
-
-	// 	err = json.Unmarshal([]byte(raw), &data)
+	log.Infof("create client-ssl profile %s on host %s", name, host)
 
 	raw, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -155,20 +150,14 @@ func (s *server) CreateClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 		client: ltmService,
 	}
 
-	if err := orch.createClientSSLProfile(r.Context(), name, &data); err != nil {
+	if err := orch.createClientSSLProfile(r.Context(), &data); err != nil {
 		handleError(w, err)
 		return
 	}
 
-	out := fmt.Sprintf("SSLProfile %s created\n", name)
-
-	j, err := json.Marshal(out)
-	if err != nil {
-		handleError(w, apierror.New(apierror.ErrBadRequest, "failed to marshal json", err))
-		return
-	}
+	out := []byte(fmt.Sprintf("created client-ssl profile %s on host %s", name, host))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(j)
+	w.Write(out)
 }
