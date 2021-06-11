@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/YaleSpinup/apierror"
 	"github.com/YaleSpinup/f5-api/ltm"
 )
 
@@ -104,6 +105,35 @@ func (o *ltmOrchestrator) createClientSSLProfile(ctx context.Context, data *Modi
 
 	// create clientssl profile, i.e., realcert.lab.example.org-2021.(key|crt}
 	err = o.client.CreateClientSSLProfile(data.ClientSSLProfileName, data.DefaultsFrom, data.Chain, data.CipherGroup, data.Ciphers, thisYear)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ltmOrchestrator) deleteClientSSLProfile(ctx context.Context, name string) error {
+
+	clientSSLProfile, err := o.client.GetClientSSLProfile(name)
+	if err != nil {
+		return err
+	}
+
+	if clientSSLProfile == nil {
+		return apierror.New(apierror.ErrNotFound, fmt.Sprintf("%s not found", name), nil)
+	}
+
+	err = o.client.RemoveClientSSLProfile(name)
+	if err != nil {
+		return err
+	}
+
+	err = o.client.RemoveCertificate(clientSSLProfile.Cert)
+	if err != nil {
+		return err
+	}
+
+	err = o.client.RemoveKey(clientSSLProfile.Key)
 	if err != nil {
 		return err
 	}
