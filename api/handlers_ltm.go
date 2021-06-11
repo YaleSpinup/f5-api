@@ -64,6 +64,11 @@ func (s *server) ShowClientSSLProfile(w http.ResponseWriter, r *http.Request) {
 		handleError(w, err)
 	}
 
+	if out == nil {
+		handleError(w, apierror.New(apierror.ErrNotFound, fmt.Sprintf("%s not found", name), nil))
+		return
+	}
+
 	j, err := json.Marshal(out)
 	if err != nil {
 		handleError(w, apierror.New(apierror.ErrBadRequest, "failed to marshal json", err))
@@ -157,6 +162,38 @@ func (s *server) CreateClientSSLProfile(w http.ResponseWriter, r *http.Request) 
 	}
 
 	out := []byte(fmt.Sprintf("created client-ssl profile %s on host %s", name, host))
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(out)
+}
+
+// DeleteClientSSLProfile deletes SSL Client Profile and cert-key pair
+func (s *server) DeleteClientSSLProfile(w http.ResponseWriter, r *http.Request) {
+	w = LogWriter{w}
+	vars := mux.Vars(r)
+	host := vars["host"]
+	name := vars["name"]
+
+	log.Infof("delete client-ssl profile %s on host %s", name, host)
+
+	ltmService, ok := s.LTMServices[host]
+	if !ok {
+		msg := fmt.Sprintf("LTM host service not found for account: %s", host)
+		handleError(w, apierror.New(apierror.ErrNotFound, msg, nil))
+		return
+	}
+
+	orch := &ltmOrchestrator{
+		client: ltmService,
+	}
+
+	if err := orch.deleteClientSSLProfile(r.Context(), name); err != nil {
+		handleError(w, err)
+		return
+	}
+
+	out := []byte(fmt.Sprintf("deleted client-ssl profile %s on host %s", name, host))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

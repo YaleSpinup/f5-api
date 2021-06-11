@@ -105,6 +105,40 @@ func (l *LTM) ImportKey(name, thisYear string) error {
 	return nil
 }
 
+// RemoveKey removes Key from System SSL
+func (l *LTM) RemoveKey(name string) error {
+	if name == "" {
+		return apierror.New(apierror.ErrBadRequest, "invalid input", nil)
+	}
+
+	err := l.Service.DeleteKey(name)
+	if err != nil {
+		// See AddCertificate comment above
+		log.Infof("delete key error on host %s: %s, proceeding...", l.Host, err)
+	} else {
+		log.Infof("deleted key %s on host %s", name, l.Host)
+	}
+
+	return nil
+}
+
+// RemoveCertificate removes Certificate from System SSL
+func (l *LTM) RemoveCertificate(name string) error {
+	if name == "" {
+		return apierror.New(apierror.ErrBadRequest, "invalid input", nil)
+	}
+
+	err := l.Service.DeleteCertificate(name)
+	if err != nil {
+		// See AddCertificate comment above
+		log.Infof("delete certificate error on host %s: %s, proceeding...", l.Host, err)
+	} else {
+		log.Infof("deleted certificate %s on host %s", name, l.Host)
+	}
+
+	return nil
+}
+
 // ModifyClientSSLProfile update cert and key on a client-ssl profile
 func (l *LTM) ModifyClientSSLProfile(ClientSSLProfileName, DefaultsFrom, Chain, CipherGroup, Ciphers, thisYear string) error {
 	if ClientSSLProfileName == "" || DefaultsFrom == "" || Chain == "" || CipherGroup == "" || Ciphers == "" || thisYear == "" {
@@ -154,6 +188,23 @@ func (l *LTM) CreateClientSSLProfile(ClientSSLProfileName, DefaultsFrom, Chain, 
 	}
 
 	log.Infof("created client-ssl profile %s on host %s\n", ClientSSLProfileName, l.Host)
+
+	return nil
+
+}
+
+// DeleteClientSSLProfile update cert and key on a client-ssl profile
+func (l *LTM) RemoveClientSSLProfile(ClientSSLProfileName string) error {
+	if ClientSSLProfileName == "" {
+		return apierror.New(apierror.ErrBadRequest, "invalid input", nil)
+	}
+
+	if err := l.Service.DeleteClientSSLProfile(ClientSSLProfileName); err != nil {
+		msg := fmt.Sprintf("failed to delete client-ssl profile %s on %s", ClientSSLProfileName, l.Host)
+		return apierror.New(apierror.ErrInternalError, msg, err)
+	}
+
+	log.Infof("deleted client-ssl profile %s on host %s\n", ClientSSLProfileName, l.Host)
 
 	return nil
 

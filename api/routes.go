@@ -16,6 +16,7 @@ func (s *server) routes() {
 
 	api.HandleFunc("/{host}/clientssl", s.ListClientSSLProfiles).Methods(http.MethodGet)
 	api.HandleFunc("/{host}/clientssl/{name}", s.ShowClientSSLProfile).Methods(http.MethodGet)
+	api.HandleFunc("/{host}/clientssl/{name}", s.DeleteClientSSLProfile).Methods(http.MethodDelete)
 	api.HandleFunc("/{host}/createclientssl/{name}", s.CreateClientSSLProfile).Methods(http.MethodPut)
 	api.HandleFunc("/{host}/updateclientssl/{name}", s.ModifyClientSSLProfile).Methods(http.MethodPut)
 }
