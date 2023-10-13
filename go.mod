@@ -3,7 +3,7 @@ module github.com/YaleSpinup/f5-api
 go 1.18
 
 require (
-	github.com/YaleSpinup/apierror v0.1.0
+	github.com/YaleSpinup/apierror v0.1.1
 	github.com/YaleUniversity/go-bigip v0.0.0-20201103165532-3cd41daecc84
 	github.com/aws/aws-sdk-go v1.44.96
 	github.com/google/uuid v1.3.0
