@@ -43,7 +43,7 @@ func (o *ltmOrchestrator) modifyClientSSLProfile(ctx context.Context, data *Modi
 		return err
 	}
 
-	thisYear := fmt.Sprintf("%s", time.Now().Format("2006"))
+	thisYear := fmt.Sprintf("%s", time.Now().Format("01-02-2006"))
 
 	err = o.client.ImportCertificate(data.ClientSSLProfileName, thisYear)
 	if err != nil {
@@ -55,7 +55,7 @@ func (o *ltmOrchestrator) modifyClientSSLProfile(ctx context.Context, data *Modi
 		return err
 	}
 
-	// update clientssl profile, i.e., realcert.lab.example.org-2021.(crt|key)
+	// update clientssl profile, i.e., realcert.lab.example.org-01-02-2021.(crt|key)
 	err = o.client.ModifyClientSSLProfile(data.ClientSSLProfileName, data.DefaultsFrom, data.Chain, data.CipherGroup, data.Ciphers, thisYear)
 	if err != nil {
 		return err
@@ -91,7 +91,7 @@ func (o *ltmOrchestrator) createClientSSLProfile(ctx context.Context, data *Modi
 		return err
 	}
 
-	thisYear := fmt.Sprintf("%s", time.Now().Format("2006"))
+	thisYear := fmt.Sprintf("%s", time.Now().Format("01-02-2006"))
 
 	err = o.client.ImportCertificate(data.ClientSSLProfileName, thisYear)
 	if err != nil {
@@ -103,7 +103,7 @@ func (o *ltmOrchestrator) createClientSSLProfile(ctx context.Context, data *Modi
 		return err
 	}
 
-	// create clientssl profile, i.e., realcert.lab.example.org-2021.(key|crt}
+	// create clientssl profile, i.e., realcert.lab.example.org-01-02-2021.(key|crt}
 	err = o.client.CreateClientSSLProfile(data.ClientSSLProfileName, data.DefaultsFrom, data.Chain, data.CipherGroup, data.Ciphers, thisYear)
 	if err != nil {
 		return err
