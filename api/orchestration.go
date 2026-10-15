@@ -43,7 +43,7 @@ func (o *ltmOrchestrator) modifyClientSSLProfile(ctx context.Context, data *Modi
 		return err
 	}
 
-	thisYear := fmt.Sprintf("%s", time.Now().Format("2006"))
+	thisYear := fmt.Sprintf("%s", time.Now().Format("01-02-2006"))
 
 	err = o.client.ImportCertificate(data.ClientSSLProfileName, thisYear)
 	if err != nil {
@@ -91,7 +91,7 @@ func (o *ltmOrchestrator) createClientSSLProfile(ctx context.Context, data *Modi
 		return err
 	}
 
-	thisYear := fmt.Sprintf("%s", time.Now().Format("2006"))
+	thisYear := fmt.Sprintf("%s", time.Now().Format("01-02-2006"))
 
 	err = o.client.ImportCertificate(data.ClientSSLProfileName, thisYear)
 	if err != nil {
